@@ -16,6 +16,10 @@ class AC__API UAuraGameplayAbility : public UGameplayAbility
 
 public:
 
-	UPROPERTY(EditDefaultsOnly, Category = "Input")
+	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly, Category = "Damage")
 	FGameplayTag StartInputTag;
+
+	UAuraGameplayAbility();
+
+
 };

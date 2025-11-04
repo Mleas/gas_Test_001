@@ -8,11 +8,14 @@
 
 #include "AbilitySystemBlueprintLibrary.h"
 #include "AuraGameplayTags.h"
+#include "MovieSceneTracksComponentTypes.h"
 #include "NavigationPath.h"
 #include "NavigationSystem.h"
 #include "AbilitySystem/AuraAbilitySystemComponent.h"
 #include "Components/SplineComponent.h"
+#include "GameFramework/Character.h"
 #include "Input/AuraInputComponent.h"
+#include "UI/Widget/DamagetextComponent.h"
 
 AAuraPlayerController::AAuraPlayerController()
 {
@@ -29,6 +32,20 @@ void AAuraPlayerController::Tick(float DeltaTime)
 	AutoRun();
 	
 }
+
+void AAuraPlayerController::ShowDamageNumber_Implementation(float DamageAmount, ACharacter* TargetCharacter,  bool bBlockedHit, bool bCriticalHit)
+{
+	if (IsValid(TargetCharacter) && DamageTextComponentClass && IsLocalController())
+	{
+		UDamagetextComponent* DamageText = NewObject<UDamagetextComponent>(TargetCharacter, DamageTextComponentClass);
+		DamageText->RegisterComponent();
+		DamageText->AttachToComponent(TargetCharacter->GetRootComponent(), FAttachmentTransformRules::KeepRelativeTransform);
+		DamageText->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
+		DamageText->SetDamageText(DamageAmount,bBlockedHit,bCriticalHit);
+	}
+}
+
+
 
 void AAuraPlayerController::AutoRun()
 {
@@ -71,6 +88,9 @@ void AAuraPlayerController::SetupInputComponent()
 
 	UAuraInputComponent* AuraInputComponent = CastChecked<UAuraInputComponent>(InputComponent);
 	AuraInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &AAuraPlayerController::move);
+	AuraInputComponent->BindAction(ShiftAction,ETriggerEvent::Started,this,&AAuraPlayerController::ShiftPressed);
+	AuraInputComponent->BindAction(ShiftAction,ETriggerEvent::Completed,this,&AAuraPlayerController::ShitReleased);
+	
 	AuraInputComponent->BindAbilityActions(InputConfig,this,&ThisClass::AbilityInputTagPressed,&ThisClass::AbilityInputTagReleased,&ThisClass::AbilityInputTagHeld);
 
 
@@ -90,10 +110,13 @@ void AAuraPlayerController::move(const FInputActionValue& InputActionValue)
 	{
 		ControlledPawn->AddMovementInput(ForwardDirection, InputAxisVector.Y);
 		ControlledPawn->AddMovementInput(RightDirection, InputAxisVector.X);
+		bAutoRunning = false;
 	}
 
 
 }
+
+
 
 void AAuraPlayerController::CursorTrace()
 {
@@ -133,12 +156,11 @@ void AAuraPlayerController::AbilityInputTagReleased(FGameplayTag InputTag)
 		}
 		return;	
 	}
-	if (bTargeting)
-	{
-		if (GetASC())
-			GetASC()->AbilityInputTagReleased(InputTag);
-	}
-	else
+
+	if (GetASC())
+		GetASC()->AbilityInputTagReleased(InputTag);
+	
+	if (!(bTargeting || bShiftKeyDown))
 	{
 		APawn* ControlledPawn = GetPawn<APawn>();
 		
@@ -159,6 +181,7 @@ void AAuraPlayerController::AbilityInputTagReleased(FGameplayTag InputTag)
 		FollowTime = 0.f;
 		bTargeting = false;
 	}
+
 	
 }
 
@@ -173,7 +196,7 @@ void AAuraPlayerController::AbilityInputTagHeld(FGameplayTag InputTag)
 		return;	
 	}
 
-	if (bTargeting)
+	if (bTargeting || bShiftKeyDown)
 	{
 		if (GetASC())
 			GetASC()->AbilityInputTagHeld(InputTag);

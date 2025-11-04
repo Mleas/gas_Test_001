@@ -7,6 +7,7 @@
 #include "GameFramework/PlayerController.h"
 #include "AuraPlayerController.generated.h"
 
+class UDamagetextComponent;
 class UAuraInputConfig;
 class UInputMappingContext;
 class UInputAction;
@@ -26,6 +27,9 @@ public:
 	AAuraPlayerController();
 	virtual void Tick(float DeltaTime) override;
 
+	UFUNCTION(Client,Reliable)
+	void ShowDamageNumber(float DamageAmount, ACharacter* TargetCharacter, bool bBlockedHit, bool bCriticalHit);
+	
 protected:
 	virtual void BeginPlay() override;
 	virtual void SetupInputComponent() override;
@@ -37,7 +41,14 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Input")
 	TObjectPtr<UInputAction> MoveAction;
 
+	UPROPERTY(EditAnywhere, Category = "Input")
+	TObjectPtr<UInputAction> ShiftAction;
+
 	void move(const FInputActionValue& InputActionValue);
+
+	void ShiftPressed(){ bShiftKeyDown = true; }
+	void ShitReleased(){ bShiftKeyDown = false; }
+	bool bShiftKeyDown = false;
 
 	//鼠标射线检测
 	void CursorTrace();
@@ -70,5 +81,8 @@ private:
 	TObjectPtr<USplineComponent> Spline;
 
 	void AutoRun();
+
+	UPROPERTY(EditDefaultsOnly, Category = "Widget")
+	TSubclassOf<UDamagetextComponent> DamageTextComponentClass;
 };
 

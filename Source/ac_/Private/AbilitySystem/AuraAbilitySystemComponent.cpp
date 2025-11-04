@@ -5,6 +5,7 @@
 
 #include "AuraGameplayTags.h"
 #include "AbilitySystem/Abilities/AuraGameplayAbility.h"
+#include "Net/UnrealNetwork.h"
 
 void UAuraAbilitySystemComponent::AbilityActorInfoSet()
 {
@@ -12,23 +13,36 @@ void UAuraAbilitySystemComponent::AbilityActorInfoSet()
 	const FAuraGameplayTags& GameplayTags = FAuraGameplayTags::Get();
 
 	
+}
 
+void UAuraAbilitySystemComponent::OnRep_InputTagMap()
+{
+	InputTagMap.Empty();
+	for (const FInputTagMapEntry& Entry : InputTagMapArray)
+	{
+		InputTagMap.Add(Entry.Handle, Entry.InputTag);
+	}
+}
 
+void UAuraAbilitySystemComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(UAuraAbilitySystemComponent, InputTagMapArray);
 }
 
 void UAuraAbilitySystemComponent::AbilityInputTagHeld(const FGameplayTag& InputTag)
 {
-	if (!InputTag.IsValid()) return;;
+	if (!InputTag.IsValid()) return;
 
 	for (FGameplayAbilitySpec& AbilitySpec :GetActivatableAbilities())
 	{
+		
 		if (InputTagMap.Contains(AbilitySpec.Handle) && InputTagMap[AbilitySpec.Handle] == InputTag)
 		{
 			AbilitySpecInputPressed(AbilitySpec);
 			if (!AbilitySpec.IsActive())
-			{
 				TryActivateAbility(AbilitySpec.Handle);
-			}
 		}
 	}
 }
@@ -36,13 +50,12 @@ void UAuraAbilitySystemComponent::AbilityInputTagHeld(const FGameplayTag& InputT
 void UAuraAbilitySystemComponent::AbilityInputTagReleased(const FGameplayTag& InputTag)
 {
 	if (!InputTag.IsValid()) return;;
-
+	
 	for (FGameplayAbilitySpec& AbilitySpec :GetActivatableAbilities())
 	{
 		if (InputTagMap.Contains(AbilitySpec.Handle) && InputTagMap[AbilitySpec.Handle] == InputTag)
-		{
 			AbilitySpecInputReleased(AbilitySpec);
-		}
+		
 	}
 }
 
@@ -51,11 +64,13 @@ void UAuraAbilitySystemComponent::AddCharacterAbilities(const TArray<TSubclassOf
 	for (TSubclassOf<UGameplayAbility> AbilityClass : StartupAbilities)
 	{
 		FGameplayAbilitySpec AbilitySpec = FGameplayAbilitySpec(AbilityClass,1);
+		
 		if (const UAuraGameplayAbility* AuraAbility = Cast<UAuraGameplayAbility>(AbilitySpec.Ability))
 		{
 			FGameplayAbilitySpecHandle Handle = GiveAbility(AbilitySpec);
-			InputTagMap.Add(Handle, AuraAbility->StartInputTag);;
 			
+			InputTagMap.Add(Handle, AuraAbility->StartInputTag);;
+			InputTagMapArray.Add({Handle, AuraAbility->StartInputTag});
 		}
 		
 	}
@@ -70,18 +85,4 @@ void UAuraAbilitySystemComponent::ClientEffectApplied_Implementation(UAbilitySys
 	EffectAssertTags.Broadcast(TagContainer);
 	
 }
-void UAuraAbilitySystemComponent::PrintGrantedAbilities()
-{
-	if (GetActivatableAbilities().Num() == 0)
-		return;
-		
-	for (const FGameplayAbilitySpec& Spec : GetActivatableAbilities())
-	{
-		if (Spec.Ability)
-		{
-			FString AbilityName = Spec.Ability->GetName();
-			UE_LOG(LogTemp, Error, TEXT("Granted Ability: %s"), *AbilityName);
-			GEngine->AddOnScreenDebugMessage(-1,5.f,FColor::Green,TEXT("Granted Ability"));
-		}
-	}
-}
+

@@ -136,6 +136,25 @@ public:
 	FGameplayAttributeData MaxMana;
 	ATTRIBUTE_ACCESSORS(UAuraAttributeSet, MaxMana)
 	
+	//Resistances Attributes
+	//Fire
+	UPROPERTY(BlueprintReadOnly, Category = "Resistances Attribute", ReplicatedUsing = OnRep_FireResistance)
+	FGameplayAttributeData FireResistance;
+	ATTRIBUTE_ACCESSORS(UAuraAttributeSet, FireResistance)
+	//Lightning
+	UPROPERTY(BlueprintReadOnly, Category = "Resistances Attribute", ReplicatedUsing = OnRep_LightningResistance)
+	FGameplayAttributeData LightningResistance;
+	ATTRIBUTE_ACCESSORS(UAuraAttributeSet, LightningResistance)
+	//Physical
+	UPROPERTY(BlueprintReadOnly, Category = "Resistances Attribute", ReplicatedUsing = OnRep_PhysicalResistance)
+	FGameplayAttributeData PhysicalResistance;
+	ATTRIBUTE_ACCESSORS(UAuraAttributeSet, PhysicalResistance)
+	//Arcane
+	UPROPERTY(BlueprintReadOnly, Category = "Resistances Attribute", ReplicatedUsing = OnRep_ArcaneResistance)
+	FGameplayAttributeData ArcaneResistance;
+	ATTRIBUTE_ACCESSORS(UAuraAttributeSet, ArcaneResistance)
+	
+	
 	//Vital Attributes
 	
 	UPROPERTY(BlueprintReadOnly, Category = "Vital Attribute", ReplicatedUsing = OnRep_Health)
@@ -146,8 +165,11 @@ public:
     FGameplayAttributeData Mana;
 	ATTRIBUTE_ACCESSORS(UAuraAttributeSet, Mana)
 
+	//Meta Attributes
 
-
+	UPROPERTY(BlueprintReadOnly,Category="Meta Attributes")
+	FGameplayAttributeData IncomingDamage;
+	ATTRIBUTE_ACCESSORS(UAuraAttributeSet, IncomingDamage)
 
 	//Vital Attributes
 	UFUNCTION()
@@ -201,7 +223,21 @@ public:
 	UFUNCTION()
 	virtual void OnRep_MaxMana(const FGameplayAttributeData& OldMaxMana);
 
+	//Resistances Attributes
+	// Fire
+	UFUNCTION()
+	void OnRep_FireResistance(const FGameplayAttributeData& OldFireResistance);
+	// Lightning
+	UFUNCTION()
+	void OnRep_LightningResistance(const FGameplayAttributeData& OldLightningResistance);
+	// Physical
+	UFUNCTION()
+	void OnRep_PhysicalResistance(const FGameplayAttributeData& OldPhysicalResistance);
+	// Arcane
+	UFUNCTION()
+	void OnRep_ArcaneResistance(const FGameplayAttributeData& OldArcaneResistance);
+
 private:
 	void SetEffectProperties(const struct FGameplayEffectModCallbackData& Data, FEffectProperties& Props) const;
-
+	void ShowFloatingText(const FEffectProperties& Props,float Damage, bool bBlockedHit, bool bCriticalHit) const; 
 };

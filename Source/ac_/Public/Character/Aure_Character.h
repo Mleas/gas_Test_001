@@ -20,6 +20,7 @@ class AC__API AAure_Character : public AAure_B_Character
 public:
 	AAure_Character();
 
+
 	FONTest OnTest;
 
     UPROPERTY(BlueprintReadWrite, BlueprintAssignable)

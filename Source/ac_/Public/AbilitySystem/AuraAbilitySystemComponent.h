@@ -9,6 +9,18 @@
 
 DECLARE_MULTICAST_DELEGATE_OneParam(FEffectAssertTags,const FGameplayTagContainer& /*AssertTags*/);
 
+USTRUCT(BlueprintType)
+struct FInputTagMapEntry
+{
+	GENERATED_BODY()
+
+	UPROPERTY()
+	FGameplayAbilitySpecHandle Handle;
+
+	UPROPERTY()
+	FGameplayTag InputTag;
+};
+
 
 /**
  * 
@@ -22,6 +34,15 @@ public:
 	void AbilityActorInfoSet();
 	FEffectAssertTags EffectAssertTags;
 
+
+	UPROPERTY(ReplicatedUsing = OnRep_InputTagMap)
+	TArray<FInputTagMapEntry> InputTagMapArray;
+	
+	UFUNCTION()
+	void OnRep_InputTagMap();
+
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+
 	TMap<FGameplayAbilitySpecHandle, FGameplayTag> InputTagMap;
 
 	void AbilityInputTagHeld(const FGameplayTag& InputTag);
@@ -29,7 +50,7 @@ public:
 
 
 	void AddCharacterAbilities(const TArray<TSubclassOf<UGameplayAbility>>& StartupAbilities);
-	void PrintGrantedAbilities();
+
 
 protected:
 

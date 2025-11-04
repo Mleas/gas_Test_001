@@ -5,6 +5,8 @@
 
 #include "AbilitySystemComponent.h"
 #include "AbilitySystem/AuraAbilitySystemComponent.h"
+#include "ac_/ac_.h"
+#include "Components/CapsuleComponent.h"
 
 // Sets default values
 AAure_B_Character::AAure_B_Character()
@@ -12,6 +14,12 @@ AAure_B_Character::AAure_B_Character()
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = false;
 
+	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Camera,ECR_Ignore);
+	GetCapsuleComponent()->SetGenerateOverlapEvents(false);
+	GetMesh()->SetCollisionResponseToChannel(ECC_Camera,ECR_Ignore);
+	GetMesh()->SetCollisionResponseToChannel(ECC_Projectile,ECR_Overlap);
+	GetMesh()->SetGenerateOverlapEvents(true);
+	
 	Weapon = CreateDefaultSubobject<USkeletalMeshComponent>("Weapon");
 	Weapon->SetupAttachment(GetMesh(), FName("WeaponHandSocket"));
 	Weapon->SetCollisionEnabled(ECollisionEnabled::NoCollision);
@@ -23,6 +31,32 @@ UAbilitySystemComponent* AAure_B_Character::GetAbilitySystemComponent() const
 }
 
 
+UAnimMontage* AAure_B_Character::GetCombatMontage_Implementation()
+{
+	return HitReactMontage;
+}
+
+void AAure_B_Character::Die()
+{
+	Weapon->DetachFromComponent(FDetachmentTransformRules(EDetachmentRule::KeepWorld, true));
+	MulticastHandleDeath();
+}
+
+void AAure_B_Character::MulticastHandleDeath_Implementation()
+{
+	Weapon->SetSimulatePhysics(true);
+	Weapon->SetEnableGravity(true);
+	Weapon->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
+
+	GetMesh()->SetSimulatePhysics(true);
+	GetMesh()->SetEnableGravity(true);
+	GetMesh()->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
+	GetMesh()->SetCollisionResponseToChannel(ECC_WorldStatic,ECR_Block);
+	
+	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	Dissolve();
+	bIsDead = true;
+}
 
 // Called when the game starts or when spawned
 void AAure_B_Character::BeginPlay()
@@ -31,10 +65,20 @@ void AAure_B_Character::BeginPlay()
 	
 }
 
-FVector AAure_B_Character::GetCombatSocketLocation()
+FVector AAure_B_Character::GetCombatSocketLocation_Implementation()
 {
 	check(Weapon);
 	return Weapon->GetSocketLocation(WeaponTipSocketName);
+}
+
+bool AAure_B_Character::IsDead_Implementation() const
+{
+	return bIsDead;
+}
+
+AActor* AAure_B_Character::GetAvatar_Implementation()
+{
+	return this;
 }
 
 void AAure_B_Character::InitAbilityActorInfo()
@@ -67,6 +111,22 @@ void AAure_B_Character::AddCharacterAbilities()
 	if (!HasAuthority()) return;
 	AuraASC->AddCharacterAbilities(StartupAbilities);
 
+}
+
+void AAure_B_Character::Dissolve()
+{
+	if (IsValid(DissolveMaterialInstance))
+	{
+		UMaterialInstanceDynamic* DynamicMatInst = UMaterialInstanceDynamic::Create(DissolveMaterialInstance,this);
+		GetMesh()->SetMaterial(0, DynamicMatInst);
+		StartDissolveTimeline(DynamicMatInst);
+	}
+	if (IsValid(WeaponDissolveMaterialInstance))
+	{
+		UMaterialInstanceDynamic* DynamicMatInst = UMaterialInstanceDynamic::Create(WeaponDissolveMaterialInstance,this);
+		Weapon->SetMaterial(0, DynamicMatInst);
+		StartWeaponDissolveTimeline(DynamicMatInst);
+	}
 }
 
 // Called every frame

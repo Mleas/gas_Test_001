@@ -3,3 +3,8 @@
 
 #include "AbilitySystem/Abilities/AuraGameplayAbility.h"
 
+UAuraGameplayAbility::UAuraGameplayAbility()
+{
+	NetExecutionPolicy = EGameplayAbilityNetExecutionPolicy::LocalPredicted;
+
+}

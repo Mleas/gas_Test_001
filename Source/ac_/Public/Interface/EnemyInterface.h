@@ -24,4 +24,10 @@ class AC__API IEnemyInterface
 public:
 	virtual void HighlightActor() = 0;
 	virtual void UnHighlightActor() = 0;
+
+	UFUNCTION(BlueprintNativeEvent,BlueprintCallable)
+	AActor* GetCombatTarget() const;
+
+	UFUNCTION(BlueprintNativeEvent,BlueprintCallable)
+	void SetCombatTarget(AActor* InCombatTarget);
 };
