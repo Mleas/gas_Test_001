@@ -35,7 +35,9 @@ void UAuraProjectileSpell::SpawnProjectile(const FVector& ProjectileTargetLoctio
     if (CombatInterface)
     {
         // 获取技能释放的起始位置（通常是角色的手或武器挂点）
-        const FVector SocketLocation = ICombatInterface::Execute_GetCombatSocketLocation(GetAvatarActorFromActorInfo());
+        const FVector SocketLocation = ICombatInterface::Execute_GetCombatSocketLocation(
+            GetAvatarActorFromActorInfo(),
+            FAuraGameplayTags::Get().CombatSocket_Weapon);
 
 
         // 计算从释放点到目标点的旋转方向

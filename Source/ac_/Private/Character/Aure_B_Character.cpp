@@ -4,6 +4,7 @@
 #include "Character/Aure_B_Character.h"
 
 #include "AbilitySystemComponent.h"
+#include "AuraGameplayTags.h"
 #include "AbilitySystem/AuraAbilitySystemComponent.h"
 #include "ac_/ac_.h"
 #include "Components/CapsuleComponent.h"
@@ -23,6 +24,11 @@ AAure_B_Character::AAure_B_Character()
 	Weapon = CreateDefaultSubobject<USkeletalMeshComponent>("Weapon");
 	Weapon->SetupAttachment(GetMesh(), FName("WeaponHandSocket"));
 	Weapon->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+}
+
+TArray<FTaggedMontage> AAure_B_Character::GetAttackMontages_Implementation()
+{
+	return AttackMontages;
 }
 
 UAbilitySystemComponent* AAure_B_Character::GetAbilitySystemComponent() const
@@ -65,10 +71,26 @@ void AAure_B_Character::BeginPlay()
 	
 }
 
-FVector AAure_B_Character::GetCombatSocketLocation_Implementation()
+FVector AAure_B_Character::GetCombatSocketLocation_Implementation(const FGameplayTag& MontageTag)
 {
-	check(Weapon);
-	return Weapon->GetSocketLocation(WeaponTipSocketName);
+	const FAuraGameplayTags& GameplayTags = FAuraGameplayTags::Get();
+	if (MontageTag.MatchesTagExact(GameplayTags.CombatSocket_Weapon) && IsValid(Weapon))
+	{
+		return Weapon->GetSocketLocation(WeaponTipSocketName);
+	}
+	if (MontageTag.MatchesTagExact(GameplayTags.CombatSocket_LeftHand))
+	{
+		return GetMesh()->GetSocketLocation(LeftHandSocketName);
+	}
+	if (MontageTag.MatchesTagExact(GameplayTags.CombatSocket_RightHand))
+	{
+		return GetMesh()->GetSocketLocation(RightHandSocketName);
+	}
+	if (MontageTag.MatchesTagExact(GameplayTags.CombatSocket_Tail))
+	{
+		return GetMesh()->GetSocketLocation(TailSocketName);
+	}
+	return FVector();
 }
 
 bool AAure_B_Character::IsDead_Implementation() const

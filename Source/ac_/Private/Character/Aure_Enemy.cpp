@@ -69,6 +69,7 @@ int32 AAure_Enemy::GetPlayerLevel()
 
 void AAure_Enemy::Die()
 {
+    AuraAIController->UnPossess();
     SetLifeSpan(LifeSpan);
     Super::Die();
 }

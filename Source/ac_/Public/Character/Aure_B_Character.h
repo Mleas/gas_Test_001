@@ -30,6 +30,12 @@ public:
 	 */
 	AAure_B_Character();
 
+
+	UPROPERTY(EditAnywhere,Category="Combat")
+	TArray<FTaggedMontage> AttackMontages;
+
+	virtual TArray<FTaggedMontage> GetAttackMontages_Implementation() override;
+	
 	/**
 	 * @brief 获取当前角色的能力系统组件（Ability System Component）。
 	 * 
@@ -67,7 +73,7 @@ public:
 	 * 
 	 * @return 返回FVector表示的位置坐标。
 	 */
-	virtual FVector GetCombatSocketLocation_Implementation() override;
+	virtual FVector GetCombatSocketLocation_Implementation(const FGameplayTag& MontageTag) override;
 
 	/**
 	 * @brief 判断角色是否已死亡。
@@ -140,6 +146,12 @@ protected:
 	/** 武器尖端插槽名称 */
 	UPROPERTY(EditAnywhere, Category = "Combat")
 	FName WeaponTipSocketName;
+	UPROPERTY(EditAnywhere, Category = "Combat")
+	FName LeftHandSocketName;
+	UPROPERTY(EditAnywhere, Category = "Combat")
+	FName RightHandSocketName;
+	UPROPERTY(EditAnywhere, Category = "Combat")
+	FName TailSocketName;
 
 	/** 角色能力系统组件 */
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
