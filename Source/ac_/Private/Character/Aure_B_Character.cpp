@@ -8,6 +8,7 @@
 #include "AbilitySystem/AuraAbilitySystemComponent.h"
 #include "ac_/ac_.h"
 #include "Components/CapsuleComponent.h"
+#include "Kismet/GameplayStatics.h"
 
 // Sets default values
 AAure_B_Character::AAure_B_Character()
@@ -50,6 +51,7 @@ void AAure_B_Character::Die()
 
 void AAure_B_Character::MulticastHandleDeath_Implementation()
 {
+	UGameplayStatics::PlaySoundAtLocation(this, DeathSound, GetActorLocation(),GetActorRotation());
 	Weapon->SetSimulatePhysics(true);
 	Weapon->SetEnableGravity(true);
 	Weapon->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
@@ -103,6 +105,11 @@ AActor* AAure_B_Character::GetAvatar_Implementation()
 	return this;
 }
 
+UNiagaraSystem* AAure_B_Character::GetBloodEffect_Implementation() const
+{
+	return BloodEffect;
+}
+
 void AAure_B_Character::InitAbilityActorInfo()
 {
 }
@@ -132,7 +139,7 @@ void AAure_B_Character::AddCharacterAbilities()
 	UAuraAbilitySystemComponent* AuraASC = CastChecked<UAuraAbilitySystemComponent>(AbilitySystemComponent);
 	if (!HasAuthority()) return;
 	AuraASC->AddCharacterAbilities(StartupAbilities);
-
+	AuraASC->AddCharacterPassiveAbilities(StartupPassiveAbilities);
 }
 
 void AAure_B_Character::Dissolve()
@@ -149,6 +156,34 @@ void AAure_B_Character::Dissolve()
 		Weapon->SetMaterial(0, DynamicMatInst);
 		StartWeaponDissolveTimeline(DynamicMatInst);
 	}
+}
+
+
+FTaggedMontage AAure_B_Character::GetTaggedMontageByTag_Implementation(const FGameplayTag& MontageTag)
+{
+	for (FTaggedMontage TaggedMontage : AttackMontages)
+	{
+		if (TaggedMontage.MontageTag == MontageTag)
+		{
+			return TaggedMontage;
+		}
+	}
+	return FTaggedMontage();
+}
+
+int32 AAure_B_Character::GetMinionCount_Implementation()
+{
+	return MinionCount;
+}
+
+void AAure_B_Character::IncremenetMinionCount_Implementation(int32 Amount)
+{
+	MinionCount += Amount;
+}
+
+ECharacterClass AAure_B_Character::GetCharacterClass_Implementation()
+{
+	return CharacterClass;
 }
 
 // Called every frame

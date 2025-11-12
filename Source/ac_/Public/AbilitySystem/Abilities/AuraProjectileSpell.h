@@ -21,7 +21,7 @@ protected:
 
 
 	UFUNCTION(BlueprintCallable,Category="Projectile")
-	void SpawnProjectile(const FVector& ProjectileTargetLoction);
+	void SpawnProjectile(const FVector& ProjectileTargetLoction, const FGameplayTag& SocketTag);
 	
 	UPROPERTY(EditAnywhere,BlueprintReadWrite)
 	TSubclassOf<AAuraProjectile> ProjectileClass;

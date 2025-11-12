@@ -62,14 +62,14 @@ void AAure_Enemy::UnHighlightActor()
     Weapon->SetRenderCustomDepth(false);
 }
 
-int32 AAure_Enemy::GetPlayerLevel()
+int32 AAure_Enemy::GetPlayerLevel_Implementation()
 {
     return Level;
 }
 
 void AAure_Enemy::Die()
 {
-    AuraAIController->UnPossess();
+    AuraAIController->GetBlackboardComponent()->SetValueAsBool(FName("bAlive"),true);
     SetLifeSpan(LifeSpan);
     Super::Die();
 }

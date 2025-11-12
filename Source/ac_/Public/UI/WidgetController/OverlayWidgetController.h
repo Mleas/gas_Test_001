@@ -7,6 +7,11 @@
 #include "OverlayWidgetController.generated.h"
 
 
+class AAuraPlayerState;
+struct FAuraAbilityInfo;
+class UAbilityInfo;
+class UAuraAbilitySystemComponent;
+
 USTRUCT(BlueprintType)
 struct FUIWidgetRow : public FTableRowBase
 {
@@ -31,6 +36,8 @@ class UAuraUserWidget;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnAttributeChangedSignature, float, NewValue);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FMessageWidgetRowSignature, FUIWidgetRow, Row);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FAbilityinfoSignature, const FAuraAbilityInfo&, Info);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnLevelChangedSignature, int32, NewLevel, bool, bLevelUp);
 
 /**
  * 
@@ -60,15 +67,32 @@ public:
 	UPROPERTY(BlueprintAssignable, Category = "GAS|Message")
 	FMessageWidgetRowSignature MessageWidgetRowDelegate;
 
+	UPROPERTY(BlueprintAssignable, Category = "GAS|Message")
+	FAbilityinfoSignature AbilityInfoDelegate;
+
+	UPROPERTY(BlueprintAssignable, Category = "GAS|XP")
+	FOnAttributeChangedSignature OnXPPercentChangedDelegate;
+	
+	UPROPERTY(BlueprintAssignable, Category="GAS|Level")
+	FOnLevelChangedSignature OnPlayerLevelChangedDelegate;
+
 protected:
 
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Widget Data")
 	TObjectPtr<UDataTable> MessageWidgetDataTable;
 	
+	//UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Widget Data")
+	//TObjectPtr<UAbilityInfo> AbilityInfo;
+	
 	template<typename T>
 	T* GetDataTableRowByTag(UDataTable* DataTable,const FGameplayTag& Tag);
+	
+	void OnInitializeStartupAbilities(UAuraAbilitySystemComponent* AuraASC);
 
+	void OnXPChenged(int32 NewXP);
+
+	AAuraPlayerState* GetAuraPS() const;
 };
 
 template <typename T>

@@ -52,8 +52,8 @@ private:
 
 	//鼠标射线检测
 	void CursorTrace();
-    TObjectPtr<IEnemyInterface> LastActor;
-    TObjectPtr<IEnemyInterface> ThisActor;
+    TScriptInterface<IEnemyInterface> LastActor;
+    TScriptInterface<IEnemyInterface> ThisActor;
 	FHitResult CursorHit;
 
 	void AbilityInputTagPressed(FGameplayTag InputTag);

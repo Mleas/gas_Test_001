@@ -20,7 +20,7 @@ void UAuraProjectileSpell::ActivateAbility(const FGameplayAbilitySpecHandle Hand
 	
 }
 
-void UAuraProjectileSpell::SpawnProjectile(const FVector& ProjectileTargetLoction)
+void UAuraProjectileSpell::SpawnProjectile(const FVector& ProjectileTargetLoction, const FGameplayTag& SocketTag)
 {
     // 检查是否是服务器（已注释掉的旧逻辑）
     // const bool bIsServer = GetAvatarActorFromActorInfo()->HasAuthority();
@@ -35,14 +35,14 @@ void UAuraProjectileSpell::SpawnProjectile(const FVector& ProjectileTargetLoctio
     if (CombatInterface)
     {
         // 获取技能释放的起始位置（通常是角色的手或武器挂点）
-        const FVector SocketLocation = ICombatInterface::Execute_GetCombatSocketLocation(
+        FVector SocketLocation = ICombatInterface::Execute_GetCombatSocketLocation(
             GetAvatarActorFromActorInfo(),
-            FAuraGameplayTags::Get().CombatSocket_Weapon);
-
+            SocketTag);
+        SocketLocation.Z -= 10.0f;
 
         // 计算从释放点到目标点的旋转方向
         FRotator Rotator = (ProjectileTargetLoction - SocketLocation).Rotation();
-        //Rotator.Pitch = 0.0f; // 将俯仰角设为0，防止抛物线或上下偏移
+        Rotator.Pitch = 0.0f; // 将俯仰角设为0，防止抛物线或上下偏移
 
         // 构造一个用于生成投射物的变换（位置 + 旋转）
         FTransform SpawnTransform;

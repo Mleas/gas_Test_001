@@ -4,7 +4,9 @@
 #include "UI/WidgetController/AttributeMenuWidgetController.h"
 
 #include "AuraGameplayTags.h"
+#include "AbilitySystem/AuraAbilitySystemComponent.h"
 #include "AbilitySystem/AuraAttributeSet.h"
+#include "Player/AuraPlayerState.h"
 
 void UAttributeMenuWidgetController::BindCallbacksToDependencies()
 {
@@ -22,7 +24,12 @@ void UAttributeMenuWidgetController::BindCallbacksToDependencies()
 	
 	);
 	}
-
+	GetAuraPS()->OnAttributePointsChangedDelegate.AddLambda(
+			[this](int32 Points)
+			{
+				AttributePointsChangedDelegate.Broadcast(Points);
+			}
+		);
 }
 
 void UAttributeMenuWidgetController::BroadcastInitialValues()
@@ -35,12 +42,17 @@ void UAttributeMenuWidgetController::BroadcastInitialValues()
 	{
 		BroadcastAttributeInfo(Pair.Key,Pair.Value());
 	}
-	
+	AttributePointsChangedDelegate.Broadcast(GetAuraPS()->GetAttributePoints());
 	
 }
 
+void UAttributeMenuWidgetController::UpgradeAttribute(const FGameplayTag& AttributeTag)
+{
+	GetAuraASC()->UpgradeAttribute(AttributeTag);
+}
+
 void UAttributeMenuWidgetController::BroadcastAttributeInfo(const FGameplayTag& AttributeTag,
-	const FGameplayAttribute& Attribute)
+                                                            const FGameplayAttribute& Attribute)
 {
 	FAuraAttributeInfo Info = AttributeInfo->FindAttributeInfoTag(AttributeTag,false);
 	Info.AttributeValue = Attribute.GetNumericValue(AttributeSet);
