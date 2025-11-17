@@ -86,9 +86,8 @@ void UAuraProjectileSpell::SpawnProjectile(const FVector& ProjectileTargetLoctio
         }
         
         
-      
         // 将伤害效果规格句柄赋值给投射物
-        Projectile->DamageEffectSpecHandle = SpecHandle;
+        Projectile->DamageEffectSpecParams = SpecHandle;
 
         // 完成投射物的生成
         Projectile->FinishSpawning(SpawnTransform);

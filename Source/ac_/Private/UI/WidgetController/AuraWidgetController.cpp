@@ -5,6 +5,7 @@
 
 #include "AbilitySystem/AuraAbilitySystemComponent.h"
 #include "AbilitySystem/AuraAttributeSet.h"
+#include "AbilitySystem/Data/AbilityInfo.h"
 #include "Player/AuraPlayerController.h"
 #include "Player/AuraPlayerState.h"
 
@@ -25,7 +26,20 @@ void UAuraWidgetController::BroadcastInitialValues()
 void UAuraWidgetController::BindCallbacksToDependencies()
 {
 }
+void UAuraWidgetController::BroadcastAbilityInfo()
+{
+    if (!GetAuraASC()->bStartupAbilitiesGiven) return;
 
+    FForEachAbility BroadcastDelegate;
+    BroadcastDelegate.BindLambda([this](const FGameplayAbilitySpec& AbilitySpec)
+    {
+        FAuraAbilityInfo Info = AbilityInfo->FindAbilityInfoForTag(AuraAbilitySystemComponent->GetAbilityTagFromSpec(AbilitySpec));
+        Info.InputTag = AuraAbilitySystemComponent->GetInputTagFromSpec(AbilitySpec);
+        Info.StatusTag = AuraAbilitySystemComponent->GetStatusFromSpec(AbilitySpec);
+        AbilityInfoDelegate.Broadcast(Info);
+    });
+    GetAuraASC()->ForEachAbility(BroadcastDelegate);
+}
 AAuraPlayerController* UAuraWidgetController::GetAuraPC()
 {
     if (AuraPlayerController == nullptr)

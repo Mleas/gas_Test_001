@@ -67,8 +67,7 @@ public:
 	UPROPERTY(BlueprintAssignable, Category = "GAS|Message")
 	FMessageWidgetRowSignature MessageWidgetRowDelegate;
 
-	UPROPERTY(BlueprintAssignable, Category = "GAS|Message")
-	FAbilityinfoSignature AbilityInfoDelegate;
+
 
 	UPROPERTY(BlueprintAssignable, Category = "GAS|XP")
 	FOnAttributeChangedSignature OnXPPercentChangedDelegate;
@@ -93,6 +92,8 @@ protected:
 	void OnXPChenged(int32 NewXP);
 
 	AAuraPlayerState* GetAuraPS() const;
+	void OnAbilityEquipped(const FGameplayTag& AbilityTag, const FGameplayTag& Status, const FGameplayTag& Slot,
+	                       const FGameplayTag& PreviousSlot) const;
 };
 
 template <typename T>

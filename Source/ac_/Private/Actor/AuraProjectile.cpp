@@ -62,9 +62,9 @@ void AAuraProjectile::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, 
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	
-	if (!DamageEffectSpecHandle.Data.IsValid() || DamageEffectSpecHandle.Data.Get()->GetContext().GetEffectCauser() == OtherActor)
+	if (!DamageEffectSpecParams.Data.IsValid() || DamageEffectSpecParams.Data.Get()->GetContext().GetEffectCauser() == OtherActor)
 		return;
-	if (!UAuraAbilitySystemLibrary::IsNotFriend(DamageEffectSpecHandle.Data.Get()->GetEffectContext().GetEffectCauser(), OtherActor)) return;
+	if (!UAuraAbilitySystemLibrary::IsNotFriend(DamageEffectSpecParams.Data.Get()->GetEffectContext().GetEffectCauser(), OtherActor)) return;
 	if (!bHit)
 	{
 		UGameplayStatics::PlaySoundAtLocation(this,ImpactSound, GetActorLocation(), FRotator::ZeroRotator);
@@ -76,7 +76,7 @@ void AAuraProjectile::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, 
 	{
 		if (UAbilitySystemComponent* TargetASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(OtherActor))
 		{
-			TargetASC->ApplyGameplayEffectSpecToSelf(*DamageEffectSpecHandle.Data.Get());
+			TargetASC->ApplyGameplayEffectSpecToSelf(*DamageEffectSpecParams.Data.Get());
 		}
 		Destroy();
 	}
@@ -86,8 +86,8 @@ void AAuraProjectile::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, 
 bool AAuraProjectile::IsValidOverlap(AActor* OtherActor)
 {
 	
-	if (DamageEffectSpecHandle.Data.Get()->GetEffectContext().GetEffectCauser()== nullptr) return false;
-	AActor* SourceAvatarActor = DamageEffectSpecHandle.Data.Get()->GetEffectContext().GetEffectCauser();
+	if (DamageEffectSpecParams.Data.Get()->GetEffectContext().GetEffectCauser()== nullptr) return false;
+	AActor* SourceAvatarActor = DamageEffectSpecParams.Data.Get()->GetEffectContext().GetEffectCauser();
 	if (SourceAvatarActor == OtherActor) return false;
 	if (!UAuraAbilitySystemLibrary::IsNotFriend(SourceAvatarActor, OtherActor)) return false;
 

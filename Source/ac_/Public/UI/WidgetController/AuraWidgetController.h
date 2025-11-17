@@ -39,6 +39,7 @@ struct FWidgetControllerParams
 };
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnPlayerStatChangedSignature, int32, NewValue);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FAbilityInfoSignature, const FAuraAbilityInfo&, Info);
 /**
  * 
  */
@@ -56,7 +57,11 @@ public:
 	UFUNCTION(BlueprintCallable)
     virtual void BroadcastInitialValues();
 
+	UPROPERTY(BlueprintAssignable, Category="GAS|Messages")
+	FAbilityInfoSignature AbilityInfoDelegate;
+
     virtual void BindCallbacksToDependencies();
+	void BroadcastAbilityInfo();
 
 protected:
 
@@ -89,6 +94,7 @@ protected:
 
 	AAuraPlayerController* GetAuraPC();
 	AAuraPlayerState* GetAuraPS();
+	UFUNCTION(BlueprintCallable)
 	UAuraAbilitySystemComponent* GetAuraASC();
 	UAuraAttributeSet* GetAuraAS();
 	

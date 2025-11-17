@@ -33,6 +33,7 @@ public:
 	// Sets default values for this actor's properties
 	AAttributeEffectActor();
 
+	
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;

@@ -4,6 +4,7 @@
 #include "UI/HUD/AuraHUD.h"
 
 #include "UI/WidgetController/AttributeMenuWidgetController.h"
+#include "UI/WidgetController/SpellMenuWidgetController.h"
 
 
 /**
@@ -36,6 +37,17 @@ UAttributeMenuWidgetController* AAuraHUD::GetAttributeMenuWidgetController(const
         MenuWidgetController->BindCallbacksToDependencies();
     }
     return MenuWidgetController;
+}
+
+USpellMenuWidgetController* AAuraHUD::GetSpellMenuWidgetController(const FWidgetControllerParams& WCParams)
+{
+    if (SpellMenuWidgetController == nullptr)
+    {
+        SpellMenuWidgetController = NewObject<USpellMenuWidgetController>(this, SpellMenuWidgetControllerClass);
+        SpellMenuWidgetController->SetWidgetControllerParams(WCParams);
+        SpellMenuWidgetController->BindCallbacksToDependencies();
+    }
+    return SpellMenuWidgetController;
 }
 
 /**
