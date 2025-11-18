@@ -72,18 +72,17 @@ void UAuraProjectileSpell::SpawnProjectile(const FVector& ProjectileTargetLoctio
         // 获取游戏标签（用于标识伤害类型）
         FAuraGameplayTags GameplayTags = FAuraGameplayTags::Get();
 
-        for (auto& Pair : DamageTypes)
-        {
+     
             // 根据技能等级获取缩放后的伤害值
-            const float ScaledDamage = Pair.Value.GetValueAtLevel(GetAbilityLevel());
+            const float ScaledDamage = Damage.GetValueAtLevel(GetAbilityLevel());
 
             // 将伤害值通过标签设置到 SpecHandle 中（SetByCaller）
             UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(
             SpecHandle, 
-            Pair.Key,
+            DamageType,
             ScaledDamage);
             
-        }
+      
         
         
         // 将伤害效果规格句柄赋值给投射物
